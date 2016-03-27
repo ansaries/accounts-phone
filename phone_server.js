@@ -413,7 +413,7 @@ Meteor.methods({verifyPhone: function (phone, code, newPassword) {
             check(phone, String);
 
             if (!code) {
-                throw new Meteor.Error(403, "Code is must be provided to method");
+                throw new Meteor.Error(403, "Code must be provided to method");
             }
             // Change phone format to international SMS format
             phone = normalizePhone(phone);
