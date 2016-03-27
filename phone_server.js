@@ -422,12 +422,19 @@ Meteor.methods({verifyPhone: function (phone, code, newPassword) {
                 "phone.number": phone
             });
             if (!user)
-                throw new Meteor.Error(403, "Not a valid phone");
+                throw new Meteor.Error(403, "Phone number does not exist");
 
             // Verify code is accepted or master code
-            if (!user.services.phone || !user.services.phone.verify || !user.services.phone.verify.code ||
-                (user.services.phone.verify.code != code && !isMasterCode(code))) {
-                throw new Meteor.Error(403, "Not a valid code");
+            var isValid = false
+            try {
+              isValid = user.services.phone.verify.code === code
+            } catch (e) {
+            }
+
+            isValid = isValid || isMasterCode(code)
+
+            if (!isValid) {
+                throw new Meteor.Error(403, "Not a valid code!!!");
             }
 
             var setOptions = {'phone.verified': true},
