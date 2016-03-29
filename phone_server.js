@@ -618,28 +618,6 @@ Accounts.createUserWithPhone = function (options, callback) {
 ///
 Meteor.users._ensureIndex('phone.number',
     {unique: 1, sparse: 1});
-Meteor.users._ensureIndex('services.phone.verify.code',
-    {unique: 1, sparse: 1});
-
-/*** Control published data *********/
-Meteor.startup(function () {
-    /** Publish phones to the client **/
-    Meteor.publish(null, function () {
-        if (this.userId) {
-            return Meteor.users.find({_id: this.userId},
-                {fields: {'phone': 1}});
-        } else {
-            this.ready();
-        }
-    });
-
-    /** Disable user profile editing **/
-    Meteor.users.deny({
-        update: function () {
-            return true;
-        }
-    });
-});
 
 /************* Phone verification hook *************/
 
