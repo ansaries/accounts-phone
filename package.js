@@ -1,6 +1,6 @@
 Package.describe({
   name: 'yang2007chun:accounts-phone',
-  version: '0.0.22',
+  version: '0.0.23',
   summary: 'A login service based on mobile phone number, For Meteor.',
   git: 'https://github.com/Chun-Yang/accounts-phone',
   documentation: 'README.md'
