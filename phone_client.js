@@ -134,9 +134,7 @@ Accounts.createUserWithPhone = function (options, callback) {
  * @param {Function} [callback] Optional callback. Called with no arguments on success, or with a single `Error` argument on failure.
  */
 Accounts.requestPhoneVerification = function (phone, callback) {
-    if (!phone)
-        throw new Error("Must pass phone");
-    Accounts.connection.call("requestPhoneVerification", phone, callback);
+  Accounts.connection.call("requestPhoneVerification", phone, callback);
 };
 
 // Verify phone number -
