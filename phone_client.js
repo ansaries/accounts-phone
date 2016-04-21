@@ -17,16 +17,16 @@
  */
 Meteor.loginWithPhoneAndPassword = function (selector, password, callback) {
     if (typeof selector === 'string')
-        selector = {phone: selector};
+        selector = {
+            phone: selector
+        };
 
     Accounts.callLoginMethod({
-        methodArguments: [
-            {
-                user    : selector,
-                password: Accounts._hashPassword(password)
-            }
-        ],
-        userCallback   : function (error, result) {
+        methodArguments: [{
+            user: selector,
+            password: Accounts._hashPassword(password)
+        }],
+        userCallback: function (error, result) {
             if (error && error.error === 400 &&
                 error.reason === 'old password format') {
                 // The "reason" string should match the error thrown in the
@@ -42,12 +42,11 @@ Meteor.loginWithPhoneAndPassword = function (selector, password, callback) {
                 // SHA256(password), which the server bcrypts and stores in
                 // place of the old SRP information for this user.
                 srpUpgradePath({
-                    upgradeError     : error,
-                    userSelector     : selector,
+                    upgradeError: error,
+                    userSelector: selector,
                     plaintextPassword: password
                 }, callback);
-            }
-            else if (error) {
+            } else if (error) {
                 callback && callback(error);
             } else {
                 callback && callback();
@@ -58,7 +57,7 @@ Meteor.loginWithPhoneAndPassword = function (selector, password, callback) {
 
 Accounts._hashPassword = function (password) {
     return {
-        digest   : SHA256(password),
+        digest: SHA256(password),
         algorithm: "sha-256"
     };
 };
@@ -74,20 +73,18 @@ var srpUpgradePath = function (options, callback) {
     var details;
     try {
         details = EJSON.parse(options.upgradeError.details);
-    } catch (e) {}
+    } catch (e) { }
     if (!(details && details.format === 'srp')) {
         callback && callback(
             new Meteor.Error(400, "Password is old. Please reVerify phone again"));
     } else {
         Accounts.callLoginMethod({
-            methodArguments: [
-                {
-                    user    : options.userSelector,
-                    srp     : SHA256(details.identity + ":" + options.plaintextPassword),
-                    password: Accounts._hashPassword(options.plaintextPassword)
-                }
-            ],
-            userCallback   : callback
+            methodArguments: [{
+                user: options.userSelector,
+                srp: SHA256(details.identity + ":" + options.plaintextPassword),
+                password: Accounts._hashPassword(options.plaintextPassword)
+            }],
+            userCallback: callback
         });
     }
 };
@@ -115,9 +112,9 @@ Accounts.createUserWithPhone = function (options, callback) {
     options.password = Accounts._hashPassword(options.password);
 
     Accounts.callLoginMethod({
-        methodName     : 'createUserWithPhone',
+        methodName: 'createUserWithPhone',
         methodArguments: [options],
-        userCallback   : callback
+        userCallback: callback
     });
 };
 
@@ -134,7 +131,7 @@ Accounts.createUserWithPhone = function (options, callback) {
  * @param {Function} [callback] Optional callback. Called with no arguments on success, or with a single `Error` argument on failure.
  */
 Accounts.requestPhoneVerification = function (phone, callback) {
-  Accounts.connection.call("requestPhoneVerification", phone, callback);
+    Accounts.connection.call("requestPhoneVerification", phone, callback);
 };
 
 // Verify phone number -
@@ -161,7 +158,7 @@ Accounts.verifyPhone = function (phone, code, newPassword, callback) {
 
     if (newPassword) {
         // If didn't gave newPassword and only callback was given
-        if (typeof(newPassword) === 'function') {
+        if (typeof (newPassword) === 'function') {
             callback = newPassword;
         } else {
             check(newPassword, String);
@@ -169,9 +166,10 @@ Accounts.verifyPhone = function (phone, code, newPassword, callback) {
         }
     }
     Accounts.callLoginMethod({
-        methodName     : 'verifyPhone',
+        methodName: 'verifyPhone',
         methodArguments: [phone, code, hashedPassword],
-        userCallback   : callback});
+        userCallback: callback
+    });
 };
 
 /**
@@ -182,4 +180,13 @@ Accounts.isPhoneVerified = function () {
     var me = Meteor.user();
     return !!(me && me.phone && me.phone.verified);
 };
+Accounts.changePhonePassword = function (oldPassword, newPassword, callback) {
+    Accounts.connection.call("changePhonePassword", oldPassword, newPassword, callback);
+};
 
+Accounts.verifyChangePhoneCode = function (code, callback) {
+    Accounts.connection.call("verifyChangePhoneCode", code, callback);
+};
+Accounts.changeUserInfo = function (updateSql, callback) {
+    Accounts.connection.call("changeUserInfo", updateSql, callback);
+};

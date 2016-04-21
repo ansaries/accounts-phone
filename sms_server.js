@@ -1,5 +1,4 @@
 var Future = Npm.require('fibers/future');
-var Twilio = Npm.require('twilio');
 
 SMS = {};
 SMSTest = {};
@@ -49,7 +48,7 @@ SMSTest.hookSend = function (f) {
 /**
  * Send an sms.
  *
- * Connects to twilio via the CONFIG_VARS environment
+ * Originally, it was using twilio but we removed the dependency on Twilio.
  * variable. If unset, prints formatted message to stdout. The "from" option
  * is required, and at least one of "to", "from", and "body" must be provided;
  * all other options are optional.

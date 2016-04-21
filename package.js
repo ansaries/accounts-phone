@@ -1,14 +1,13 @@
 Package.describe({
-  name: 'yang2007chun:accounts-phone',
-  version: '0.0.23',
+  name: 'navybits:accounts-phone',
+  version: '0.0.24',
   summary: 'A login service based on mobile phone number, For Meteor.',
-  git: 'https://github.com/Chun-Yang/accounts-phone',
+  git: 'https://github.com/Navybits/accounts-phone.git',
   documentation: 'README.md'
 })
 
 Npm.depends({
   "phone": "1.0.3",
-  "twilio": "1.10.0",
   "stream-buffers": "0.2.5"
 })
 
