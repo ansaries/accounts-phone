@@ -7,24 +7,24 @@ Package.describe({
 })
 
 Npm.depends({
-  "phone": "1.0.3",
-  "stream-buffers": "0.2.5"
+  "phone": "1.0.5",
+  "stream-buffers": "3.0.0"
 })
 
 Package.onUse(function (api) {
   api.use('npm-bcrypt@=0.7.8_2', 'server')
 
-  api.use('accounts-base@1.0.2', ['client', 'server'])
+  api.use('accounts-base@1.2.5', ['client', 'server'])
   // Export Accounts (etc) to packages using this one.
-  api.imply('accounts-base@1.0.2', ['client', 'server'])
-  api.use('srp@1.0.2', ['client', 'server'])
-  api.use('sha@1.0.2', ['client', 'server'])
-  api.use('random@1.0.2', ['server'])
-  api.use('ejson@1.0.5', 'server')
-  api.use('callback-hook@1.0.2', 'server')
-  api.use('check@1.0.4')
-  api.use('underscore@1.0.2')
-  api.use('ddp@1.0.14', ['client', 'server'])
+  api.imply('accounts-base@1.2.5', ['client', 'server'])
+  api.use('srp@1.0.7', ['client', 'server'])
+  api.use('sha@1.0.6', ['client', 'server'])
+  api.use('random@1.0.8', ['server'])
+  api.use('ejson@1.0.10', 'server')
+  api.use('callback-hook@1.0.7', 'server')
+  api.use('check@1.1.3')
+  api.use('underscore@1.0.7')
+  api.use('ddp@1.2.4', ['client', 'server'])
   api.addFiles('sms_server.js', 'server')
   api.addFiles('phone_server.js', 'server')
   api.addFiles('phone_client.js', 'client')
@@ -35,7 +35,7 @@ Package.onUse(function (api) {
 
 Package.onTest(function (api) {
   api.use([
-    'yang2007chun:accounts-phone',
+    'navybits:accounts-phone',
     'tinytest',
     'test-helpers',
     'tracker',
