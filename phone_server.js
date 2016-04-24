@@ -139,11 +139,11 @@ var passwordValidator = Match.OneOf(
 
 // Handler to login with a phone.
 //
-// The Meteor client sets options.password to an object with keys
+// The Meteor client sets options.passwordPhone to an object with keys
 // 'digest' (set to SHA256(password)) and 'algorithm' ("sha-256").
 //
 // For other DDP clients which don't have access to SHA, the handler
-// also accepts the plaintext password in options.password as a string.
+// also accepts the plaintext password in options.passwordPhone as a string.
 //
 // (It might be nice if servers could turn the plaintext password
 // option off. Or maybe it should be opt-in, not opt-out?
@@ -152,27 +152,27 @@ var passwordValidator = Match.OneOf(
 // Note that neither password option is secure without SSL.
 //
 Accounts.registerLoginHandler("phone", function (options) {
-    if (!options.password || options.srp)
+    if (!options.passwordPhone || options.srp)
         return undefined; // don't handle
 
     check(options, {
-        user: userQueryValidator,
-        password: passwordValidator
+        userPhone: userQueryValidator,
+        passwordPhone: passwordValidator
     });
-
-    var user = findUserFromUserQuery(options.user);
+console.log(options.userPhone);
+    var user = findUserFromUserQuery(options.userPhone);
 
     if (!user.services || !user.services.phone || !(user.services.phone.bcrypt || user.services.phone.srp))
         throw new Meteor.Error(403, "User has no password set");
 
     if (!user.services.phone.bcrypt) {
-        if (typeof options.password === "string") {
+        if (typeof options.passwordPhone === "string") {
             // The client has presented a plaintext password, and the user is
             // not upgraded to bcrypt yet. We don't attempt to tell the client
             // to upgrade to bcrypt, because it might be a standalone DDP
             // client doesn't know how to do such a thing.
             var verifier = user.services.phone.srp;
-            var newVerifier = SRP.generateVerifier(options.password, {
+            var newVerifier = SRP.generateVerifier(options.passwordPhone, {
                 identity: verifier.identity, salt: verifier.salt
             });
 
@@ -195,7 +195,7 @@ Accounts.registerLoginHandler("phone", function (options) {
 
     return checkPassword(
         user,
-        options.password
+        options.passwordPhone
     );
 });
 
@@ -215,22 +215,22 @@ Accounts.registerLoginHandler("phone", function (options) {
 //
 // XXX COMPAT WITH 0.8.1.3
 Accounts.registerLoginHandler("phone", function (options) {
-    if (!options.srp || !options.password)
+    if (!options.srp || !options.passwordPhone)
         return undefined; // don't handle
 
     check(options, {
-        user: userQueryValidator,
+        userPhone: userQueryValidator,
         srp: String,
-        password: passwordValidator
+        passwordPhone: passwordValidator
     });
-
-    var user = findUserFromUserQuery(options.user);
+console.log(options.userPhone);
+    var user = findUserFromUserQuery(options.userPhone);
 
     // Check to see if another simultaneous login has already upgraded
     // the user record to bcrypt.
     if (user.services && user.services.phone &&
         user.services.phone.bcrypt)
-        return checkPassword(user, options.password);
+        return checkPassword(user, options.passwordPhone);
 
     if (!(user.services && user.services.phone
         && user.services.phone.srp))
@@ -251,7 +251,7 @@ Accounts.registerLoginHandler("phone", function (options) {
         };
 
     // Upgrade to bcrypt on successful login.
-    var salted = hashPassword(options.password);
+    var salted = hashPassword(options.passwordPhone);
     Meteor.users.update(
         user._id,
         {
@@ -366,6 +366,7 @@ Accounts.sendPhoneVerificationCode = function (userId, phone) {
     };
 
     try {
+        console.log("Now sending SMS");
         SMS.send(options);
     } catch (e) {
         console.log('SMS Failed, Something bad happened!', e);
@@ -375,12 +376,13 @@ Accounts.sendPhoneVerificationCode = function (userId, phone) {
 // Send SMS with code to user.
 Meteor.methods({
     requestPhoneVerification: function (phone) {
+        
         if (phone) {
             check(phone, String);
             // Change phone format to international SMS format
             phone = normalizePhone(phone);
         }
-
+console.log(phone);
         if (!phone) {
             throw new Meteor.Error(403, "Not a valid phone");
         }
@@ -668,6 +670,8 @@ var normalizePhone = function (phone) {
     if (phone && Accounts._options.adminPhoneNumbers && Accounts._options.adminPhoneNumbers.indexOf(phone) != -1) {
         return phone;
     }
+    console.log(phone);
+    console.log(Phone(phone));
     return Phone(phone)[0];
 };
 

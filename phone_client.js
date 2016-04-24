@@ -23,8 +23,8 @@ Meteor.loginWithPhoneAndPassword = function (selector, password, callback) {
 
     Accounts.callLoginMethod({
         methodArguments: [{
-            user: selector,
-            password: Accounts._hashPassword(password)
+            userPhone: selector,
+            passwordPhone: Accounts._hashPassword(password)
         }],
         userCallback: function (error, result) {
             if (error && error.error === 400 &&
@@ -80,9 +80,9 @@ var srpUpgradePath = function (options, callback) {
     } else {
         Accounts.callLoginMethod({
             methodArguments: [{
-                user: options.userSelector,
+                userPhone: options.userSelector,
                 srp: SHA256(details.identity + ":" + options.plaintextPassword),
-                password: Accounts._hashPassword(options.plaintextPassword)
+                passwordPhone: Accounts._hashPassword(options.plaintextPassword)
             }],
             userCallback: callback
         });
@@ -104,12 +104,12 @@ Accounts.createUserWithPhone = function (options, callback) {
     options = _.clone(options); // we'll be modifying options
 
     // If no password was given create random one
-    if (typeof options.password !== 'string' || !options.password) {
-        options.password = Math.random().toString(36).slice(-8);
+    if (typeof options.passwordPhone !== 'string' || !options.passwordPhone) {
+        options.passwordPhone = Math.random().toString(36).slice(-8);
     }
 
     // Replace password with the hashed password.
-    options.password = Accounts._hashPassword(options.password);
+    options.passwordPhone = Accounts._hashPassword(options.passwordPhone);
 
     Accounts.callLoginMethod({
         methodName: 'createUserWithPhone',
