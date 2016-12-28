@@ -1,8 +1,8 @@
 Package.describe({
-  name: 'navybits:accounts-phone',
+  name: 'productiveme:accounts-phone',
   version: '0.0.24',
   summary: 'A login service based on mobile phone number, For Meteor.',
-  git: 'https://github.com/Navybits/accounts-phone.git',
+  git: 'https://github.com/productiveme/accounts-phone.git',
   documentation: 'README.md'
 })
 
