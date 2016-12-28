@@ -10,7 +10,7 @@ The package is based and inspired by Meteor Accounts-Password package.
 In a Meteor app directory, enter:
 
 ```
-$ meteor add okland:accounts-phone
+$ git clone https://github.com/productiveme/accounts-phone packages/accounts-phone
 ```
 
 ## Examples
