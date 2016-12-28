@@ -441,7 +441,7 @@ Meteor.methods({
                 isValid = isValid || isMasterCode(code)
 
                 if (!isValid) {
-                    throw new Meteor.Error(403, "Not a valid code!!!");
+                    throw new Meteor.Error(403, "Not a valid code.");
                 }
 
                 var setOptions = { 'phone.verified': true },
