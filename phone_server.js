@@ -159,7 +159,7 @@ Accounts.registerLoginHandler("phone", function (options) {
         userPhone: userQueryValidator,
         passwordPhone: passwordValidator
     });
-console.log(options.userPhone);
+
     var user = findUserFromUserQuery(options.userPhone);
 
     if (!user.services || !user.services.phone || !(user.services.phone.bcrypt || user.services.phone.srp))
@@ -223,7 +223,6 @@ Accounts.registerLoginHandler("phone", function (options) {
         srp: String,
         passwordPhone: passwordValidator
     });
-console.log(options.userPhone);
     var user = findUserFromUserQuery(options.userPhone);
 
     // Check to see if another simultaneous login has already upgraded
@@ -382,7 +381,6 @@ Meteor.methods({
             // Change phone format to international SMS format
             phone = normalizePhone(phone);
         }
-console.log(phone);
         if (!phone) {
             throw new Meteor.Error(403, "Not a valid phone");
         }
@@ -670,8 +668,6 @@ var normalizePhone = function (phone) {
     if (phone && Accounts._options.adminPhoneNumbers && Accounts._options.adminPhoneNumbers.indexOf(phone) != -1) {
         return phone;
     }
-    console.log(phone);
-    console.log(Phone(phone));
     return Phone(phone)[0];
 };
 
