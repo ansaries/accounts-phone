@@ -365,7 +365,7 @@ Accounts.sendPhoneVerificationCode = function (userId, phone) {
     };
 
     try {
-        console.log("Now sending SMS");
+        // console.log("Now sending SMS");
         SMS.send(options);
     } catch (e) {
         console.log('SMS Failed, Something bad happened!', e);
