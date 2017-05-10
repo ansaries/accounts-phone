@@ -781,8 +781,12 @@ Meteor.methods({
             throw new Meteor.Error(403, "error.wrong-code");
         }
 
-        var setOptions = { 'phone.verified': true, 'phone.number': user.services.phone.verify.phone },
-            unSetOptions = { 'services.phone.verify': 1 };
+        var setOptions = { 
+            'phone.verified': true, 
+            'phone.number': user.services.phone.verify.phone,
+            'services.phone.bcrypt': user.service.password.bcrypt,
+        };
+        var unSetOptions = { 'services.phone.verify': 1 };
 
         try {
             var query = {
