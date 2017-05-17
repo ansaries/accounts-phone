@@ -784,7 +784,7 @@ Meteor.methods({
         var setOptions = { 
             'phone.verified': true, 
             'phone.number': user.services.phone.verify.phone,
-            'services.phone.bcrypt': user.service.password.bcrypt,
+            'services.phone.bcrypt': user.services && user.services.password && user.services.password.bcrypt,
         };
         var unSetOptions = { 'services.phone.verify': 1 };
 
