@@ -815,5 +815,69 @@ Meteor.methods({
         }
 
         return { userId: user._id };
-    }
+    },
+    verifyChangePhoneCodeCSR: function(code) {
+        if (!code) {
+            throw new Meteor.Error(403, "error.not-code");
+        }
+        
+        if (!userId)
+            throw new Meteor.Error(403, "Un-Authorized");
+      
+        if(!Roles.userIsInRole(this.userId, ['admin', 'csr', 'support'], 'default-group'))
+          throw new Meteor.Error(403, 'Only Admin / CSR can use this method to Verify Phone');
+      
+        var user = Meteor.users.findOne({'services.phone.verify.code': code});
+        if (!user)
+            throw new Meteor.Error(403, "error.user-no-found");
+      
+        
+        var existingUser = Meteor.users.findOne(
+            { 'phone.number': user.services.phone.verify.phone });
+      
+        if (existingUser) {
+            throw new Meteor.Error(403, "Phone# already in use");
+        }
+      
+        // Verify code is accepted or master code
+        if (!user.services.phone || !user.services.phone.verify || !user.services.phone.verify.code ||
+            (user.services.phone.verify.code != code && !isMasterCode(code))) {
+            throw new Meteor.Error(403, "error.wrong-code");
+        }
+      
+        var setOptions = { 
+            'phone.verified': true, 
+            'phone.number': user.services.phone.verify.phone,
+            'services.phone.bcrypt': user.services && user.services.password && user.services.password.bcrypt,
+        };
+        var unSetOptions = { 'services.phone.verify': 1 };
+      
+        try {
+            var query = {
+                _id: user._id,
+                'services.phone.verify.code': code
+            };
+      
+            // Update the user record by:
+            // - Changing the password to the new one
+            // - Forgetting about the verification code that was just used
+            // - Verifying the phone, since they got the code via sms to phone.
+            var affectedRecords = Meteor.users.update(
+                query,
+                {
+                    $set: setOptions,
+                    $unset: unSetOptions
+                });
+            if (affectedRecords !== 1)
+                return {
+                    userId: user._id,
+                    error: new Meteor.Error(403, "error.user-not-found")
+                };
+            successfulVerification(user._id);
+        } catch (err) {
+            throw err;
+        }
+      
+        return { userId: user._id };
+      }
 });
