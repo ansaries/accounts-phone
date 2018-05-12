@@ -397,6 +397,26 @@ Meteor.methods({
             }
         }
         Accounts.sendPhoneVerificationCode(userId, phone);
+    },
+    requestPhoneVerificationCSR: function (userId, phone) {
+        if(!Roles.userIsInRole(this.userId, ['admin', 'csr', 'support'], 'default-group'))
+          throw new Meteor.Error(403, 'Only CSR can use this method to Verify Phone');
+
+        if (!phone) {
+            throw new Meteor.Error(403, "Not a valid phone");
+        }
+        
+        if(!userId) {
+            throw new Meteor.Error(403, "Cannot process phone code without User")
+        }
+
+        if (phone) {
+            check(phone, String);
+            // Change phone format to international SMS format
+            phone = normalizePhone(phone);
+        }      
+
+        Accounts.sendPhoneVerificationCode(userId, phone);
     }
 });
 
