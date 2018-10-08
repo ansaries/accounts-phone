@@ -841,7 +841,7 @@ Meteor.methods({
             throw new Meteor.Error(403, "error.not-code");
         }
         
-        if (!userId)
+        if (!this.userId)
             throw new Meteor.Error(403, "Un-Authorized");
       
         if(!Roles.userIsInRole(this.userId, ['admin', 'csr', 'support'], 'default-group'))
