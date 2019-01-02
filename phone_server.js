@@ -82,7 +82,7 @@ Accounts._checkPhonePassword = function (user, password) {
 
     password = getPasswordString(password);
 
-    if (!bcryptCompare(password, user.services.phone.bcrypt)) {
+    if (!(bcryptCompare(password, user.services.password && user.services.password.bcrypt || '') || bcryptCompare(password, user.services.phone && user.services.phone.bcrypt || ''))) {
         result.error = new Meteor.Error(403, "Incorrect password");
     }
 
@@ -102,13 +102,16 @@ var selectorFromUserQuery = function (user) {
     if (user.id)
         return { _id: user.id };
     else if (user.phone)
-        return { 'phone.number': user.phone };
+        return { 'phone.number': {
+            $regex: `[+]{0,1}${user.phone}`, 
+            $options: 'i',            
+         } };
     throw new Error("shouldn't happen (validation missed something)");
 };
 
 var findUserFromUserQuery = function (user) {
     var selector = selectorFromUserQuery(user);
-
+    console.log(selector)
     var user = Meteor.users.findOne(selector);
     if (!user)
         throw new Meteor.Error(403, "User not found");
@@ -196,6 +199,75 @@ Accounts.registerLoginHandler("phone", function (options) {
     return checkPassword(
         user,
         options.passwordPhone
+    );
+});
+
+
+// Custom Handler to login with a phone.
+//
+// The Meteor client sets options.passwordPhone to an object with keys
+// 'digest' (set to SHA256(password)) and 'algorithm' ("sha-256").
+//
+// For other DDP clients which don't have access to SHA, the handler
+// also accepts the plaintext password in options.passwordPhone as a string.
+//
+// (It might be nice if servers could turn the plaintext password
+// option off. Or maybe it should be opt-in, not opt-out?
+// Accounts.config option?)
+//
+// Note that neither password option is secure without SSL.
+//
+
+Accounts.registerLoginHandler(function (options) {
+    // if (!options.passwordPhone || options.srp)
+    //     return undefined; // don't handle
+
+    if(options.methodName !== 'c_phone') return undefined;
+
+    check(options, {
+        phone: userQueryValidator,
+        pass: passwordValidator,
+        methodName: Match.Optional(String)
+    });
+
+
+    var user = findUserFromUserQuery(options.phone);
+    
+    if (!user.services || !(user.services.phone || user.services.password) || !(user.services.phone.bcrypt || user.services.phone.srp || user.services.password.bcrypt))
+        throw new Meteor.Error(403, "User has no password set");
+    
+    console.log('user found');
+    if (!user.services.phone.bcrypt && !user.services.password.bcrypt) {
+        if (typeof options.pass === "string") {
+            // The client has presented a plaintext password, and the user is
+            // not upgraded to bcrypt yet. We don't attempt to tell the client
+            // to upgrade to bcrypt, because it might be a standalone DDP
+            // client doesn't know how to do such a thing.
+            var verifier = user.services.phone.srp;
+            var newVerifier = SRP.generateVerifier(options.pass, {
+                identity: verifier.identity, salt: verifier.salt
+            });
+
+            if (verifier.verifier !== newVerifier.verifier) {
+                return {
+                    userId: user._id,
+                    error: new Meteor.Error(403, "Incorrect password")
+                };
+            }
+
+            return { userId: user._id };
+        } else {
+            // Tell the client to use the SRP upgrade process.
+            throw new Meteor.Error(400, "old password format", EJSON.stringify({
+                format: 'srp',
+                identity: user.services.phone.srp.identity
+            }));
+        }
+    }
+
+    return checkPassword(
+        user,
+        options.pass
     );
 });
 
