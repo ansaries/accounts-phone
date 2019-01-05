@@ -233,11 +233,11 @@ Accounts.registerLoginHandler(function (options) {
 
     var user = findUserFromUserQuery(options.phone);
     
-    if (!user.services || !(user.services.phone || user.services.password) || !(user.services.phone.bcrypt || user.services.phone.srp || user.services.password.bcrypt))
+    if (!user.services || !(user.services.phone || user.services.password) || !( (user.services.phone && (user.services.phone.bcrypt || user.services.phone.srp)) || (user.services.password && user.services.password.bcrypt)))
         throw new Meteor.Error(403, "User has no password set");
     
     console.log('user found');
-    if (!user.services.phone.bcrypt && !user.services.password.bcrypt) {
+    if (!(user.services.phone && user.services.phone.bcrypt) && !(user.services.password && user.services.password.bcrypt)) {
         if (typeof options.pass === "string") {
             // The client has presented a plaintext password, and the user is
             // not upgraded to bcrypt yet. We don't attempt to tell the client
